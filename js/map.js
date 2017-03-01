@@ -43,93 +43,19 @@ function map(data1, data2) {
     //Formats the data in a feature collection trougth geoFormat()
     var geoData = {type: "FeatureCollection", features: geoFormat(data1)};
     //geoTrav baseras på march_2016 (dvs turer) och innehåller arrayer med namn och coordinater för origin och destination
-    var geoTrav = {type: "TravelCollection", features: geoTravel(data2)};
+    var geoTrav = {type: "TravelCollection", features: geoTravel(data2, data1)};    //har nu alltså ett object med namn och long/lat baserat på om det är origin eller dest
 
-    console.log("geoDATTTA" + geoData);
-    console.log("geoTRAVELSAKEN" + geoTrav);
+    // console.log("geoDATTTA" + geoData);
+    // console.log("geoTRAVELSAKEN" + geoTrav);
+
+    //create lines
+    //var lines = geoLine(geoTrav);
 
     //Loads geo data
     d3.json("data/world-topo.json", function (error, world) {
         var countries = topojson.feature(world, world.objects.countries).features;
         draw(countries);
     });
-
-   
-    //console.log(data[1]);
-
-    // //Calls the filtering function 
-    // d3.select("#slider").on("input", function () {
-    //     filterMag(this.value, data);
-    // });
-
-/*************************   HÄR JOBBAR VI MASSOR   ************************/
-
-//hämta iata från (airports)
-//läs in origin och dest från march_2016
-//jämför origin och dest med iata
-//hämta coord för stället
-
-
-
-
-// for( var i = 0; i < data2.length-1; i++){
-//     data.push({
-//         type: 'Linestring',
-//         coordinates: [d[i].long, d.lat],
-//                      [d[i+1].long, d.lat]
-//     });
-
-
-// }
-
-
-    //console.log(data2[1]);
-   
-
-    //Lägger in origin och destination i en array-----tror vi
-    function geoTravel(array) {
-        var data = [];
-        array.map(function (d, i) {
-            //Complete the code...
-            data.push({
-                type: 'Travel',
-                origin: {name: d.ORIGIN, lon: [], lat: []},
-                dest: {name: d.DEST, lon: [], lat: []}
-                //names: [d.origin, d.dest]
-
-            });
-
-        });
-//SUCCEED HIT
-
-
-
-//DET HÄR BORDE FUNKA. VI KOMMER ÅT GEODATA I FOREACHEN NEDAN. MEN FUNKAR INTE ALLTID ATT SKRIVA I KONSOLEN PÅ FIREFOX, MAN HITTAR OM MAN LETAR I AVLUSAREN.
-    //loopa genom geoTrav
-    data.forEach(function (d){
-        //console.log(" geodata" + geoData);
-        for( var i = 0; i < geoData.length; i++){
-            if(d.features.origin.name == geoData.properties.iata[i]){
-                //get coordinates
-                d.features.origin.lon.push(111); //geoData.features[1].geometry.coordinates[0]
-                d.features.origin.lat.push(geoData.features[1].geometry.coordinates[1]);
-            }
-            else if(d.dest.name == geoData.properties.iata[i]){
-                //get coordinates
-                d.features.dest.lon.push(geoData.features[1].geometry.coordinates[0]);
-                d.features.dest.lat.push(geoData.features[1].geometry.coordinates[1]);
-            }
-    
-        }
-         
-    });
-
-
-        return data;
-    }
-
-/*************************   HÄR JOBBAR VI MASSOR OVANFÖR   ************************/
-     
 
 
     //Formats the data in a feature collection
@@ -151,6 +77,65 @@ function map(data1, data2) {
         return data;
     }
 
+    // //Calls the filtering function 
+    // d3.select("#slider").on("input", function () {
+    //     filterMag(this.value, data);
+    // });
+
+
+//hämta iata från (airports)
+//läs in origin och dest från march_2016
+//jämför origin och dest med iata
+//hämta coord för stället
+
+    //Lägger in origin och destination i en array-----tror vi
+    function geoTravel(array, geoData) {
+        var data = [];
+       
+       //lägger in origin och destination för datan samt long och lat om dom stämmer överrens med det i geoData
+
+        array.map(function (d, i) {
+
+            for(var j = 0; j< geoData.length; j++){
+                //console.log(d.ORIGIN)
+                if(geoData[j].iata == d.ORIGIN){
+                    data.push({
+                        type: 'Route',
+                        origin: {name: d.ORIGIN, coordinates: [geoData[j].long, geoData[j].lat]},
+                        dest: {name: d.DEST, coordinates: [,]}
+                    });
+
+                }
+                if(geoData[j].iata == d.DEST){
+                     data.push({
+                        type: 'Route',
+                        origin: {name: d.ORIGIN, coordinates: [,]},
+                        dest: {name: d.DEST, coordinates: [geoData[j].long, geoData[j].lat]}
+                    });
+                }
+            }
+        });
+
+        return data;
+    }
+
+
+    // //creates lines 
+    // function geoLine(data){
+    //     var lines = [];
+
+    //     console.log(data.features[1].origin)
+
+    //     for( var i = 0; i < data.length-1; i++){
+    //         lines.push({
+    //             type: 'Linestring',
+    //             coordinates: [data.features[i].origin.long, data.features[i].origin.lat],
+    //                          [data.features[i].dest.long, data.features[i].dest.lat]    //WRONG
+    //         });
+    //     }
+    //     return lines;
+    // }
+
     //Draws the map and the points
     function draw(countries)
     {
@@ -164,7 +149,9 @@ function map(data1, data2) {
                 .style("fill", "lightgray")
                 .style("stroke", "white");
 
-       // console.log(geoData.features("Point", [1]));
+
+                console.log(geoData)
+                console.log(geoTrav)
 
         //draw point with airports 
         var point = g.selectAll("path")
@@ -173,13 +160,10 @@ function map(data1, data2) {
             .attr("d", path)
             .classed("Point", true); 
 
-        // var route = g.selectAll("path")
-        //     .data(geoTrav.features)
-        //     .attr("class", "route")
-        //     .attr("d", path);
-
-
-
+        var route = svg.append("path")
+            //.datum({type: "LineString", coordinates: [geoTrav.features.origin.coordinates, geoTrav.features.dest.coordinates]})
+            .attr("class", "route")
+            .attr("d", path);
         
     };
 
