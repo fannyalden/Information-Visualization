@@ -18,7 +18,7 @@ function map(data1, data2) {
     //     return format.parse(d.time);
     // }));
 
-    var filterdData = data1;
+   // var filterdData = data1;
 
     //Sets the colormap
     var colors = colorbrewer.Set3[10];
@@ -31,11 +31,16 @@ function map(data1, data2) {
 
     var g = svg.append("g");
 
+    // Define the div for the tooltip
+    var div = d3.select("#map").append("div")   
+        .attr("class", "tooltip")               
+        .style("opacity", 0);
+
     //Sets the map projection
     var projection = d3.geo.mercator()      //bara translate så får man kartan i helbild, men med för stora punkter
    // .translate([width/2, height/2]);
-            .scale(1200)
-            .translate([2.2*width, 2.2*height]);
+            .scale(900)
+            .translate([1.5*width, 1.5*height]);
 
     //Creates a new geographic path generator and assing the projection        
     var path = d3.geo.path().projection(projection);
@@ -49,7 +54,7 @@ function map(data1, data2) {
     // console.log("geoTRAVELSAKEN" + geoTrav);
 
     //create lines
-    //var lines = geoLine(geoTrav);
+    var lines = geoLine(geoTrav);
 
     //Loads geo data
     d3.json("data/world-topo.json", function (error, world) {
@@ -62,7 +67,6 @@ function map(data1, data2) {
     function geoFormat(array) {
         var data = [];
         array.map(function (d, i) {
-            //Complete the code...
             data.push({
                 type: 'Feature',
                 geometry: { 
@@ -82,36 +86,28 @@ function map(data1, data2) {
     //     filterMag(this.value, data);
     // });
 
-
-//hämta iata från (airports)
-//läs in origin och dest från march_2016
-//jämför origin och dest med iata
-//hämta coord för stället
-
-    //Lägger in origin och destination i en array-----tror vi
     function geoTravel(array, geoData) {
         var data = [];
-       
-       //lägger in origin och destination för datan samt long och lat om dom stämmer överrens med det i geoData
-
         array.map(function (d, i) {
 
             for(var j = 0; j< geoData.length; j++){
                 //console.log(d.ORIGIN)
                 if(geoData[j].iata == d.ORIGIN){
-                    data.push({
-                        type: 'Route',
-                        origin: {name: d.ORIGIN, coordinates: [geoData[j].long, geoData[j].lat]},
-                        dest: {name: d.DEST, coordinates: [,]}
-                    });
 
-                }
-                if(geoData[j].iata == d.DEST){
-                     data.push({
-                        type: 'Route',
-                        origin: {name: d.ORIGIN, coordinates: [,]},
-                        dest: {name: d.DEST, coordinates: [geoData[j].long, geoData[j].lat]}
-                    });
+                    for(var k = 0; k< geoData.length; k++){
+                        if( geoData[k].iata == d.DEST){
+
+                            data.push({
+                                type: 'Route',
+
+                                //if iata = origin
+                                origin: {name: d.ORIGIN, coordinates: [geoData[j].long, geoData[j].lat]},
+                                //if iata = dest
+                                dest: {name: d.DEST, coordinates: [geoData[k].long, geoData[k].lat]},
+                                properties: d,
+                            });
+                        }
+                    }
                 }
             }
         });
@@ -120,27 +116,30 @@ function map(data1, data2) {
     }
 
 
-    // //creates lines 
-    // function geoLine(data){
-    //     var lines = [];
+    //creates lines 
+    function geoLine(data){
+        var lines = [];
 
-    //     console.log(data.features[1].origin)
-
-    //     for( var i = 0; i < data.length-1; i++){
-    //         lines.push({
-    //             type: 'Linestring',
-    //             coordinates: [data.features[i].origin.long, data.features[i].origin.lat],
-    //                          [data.features[i].dest.long, data.features[i].dest.lat]    //WRONG
-    //         });
-    //     }
-    //     return lines;
-    // }
+            for( var i = 0; i < _.size(data); i++){
+            
+                lines.push({
+                    type: 'LineString',
+                    coordinates:[ 
+                                [data.features[i].origin.coordinates[0], data.features[i].origin.coordinates[1]], //lat, long
+                                [data.features[i].dest.coordinates[0], data.features[i].dest.coordinates[1]]    //WRONG
+                        ]
+                });
+            }
+        //console.log(lines)
+        return lines;
+    }
 
     //Draws the map and the points
     function draw(countries)
     {
         //draw map
         var country = g.selectAll(".country").data(countries);
+
 
         country.enter().insert("path")
                 .attr("class", "country")
@@ -150,18 +149,40 @@ function map(data1, data2) {
                 .style("stroke", "white");
 
 
-                console.log(geoData)
-                console.log(geoTrav)
+                // console.log(geoData)
+                // console.log(geoTrav)
+                // console.log(geoTrav.features[1])
 
         //draw point with airports 
         var point = g.selectAll("path")
             .data(geoData.features)
             .enter().append("path")
             .attr("d", path)
-            .classed("Point", true); 
+            .classed("Point", true)
+            .on("mouseover", function(d) { 
+                //this.
+                div.transition()        
+                    .duration(200)      
+                    .style("opacity", .9);      
+                div.html("Airport: " + d.properties.airport)  
+                    .style("left", (d3.event.pageX) + "px")     
+                    .style("top", (d3.event.pageY - 28) + "px");    
+            })                  
+            .on("mouseout", function(d) {       
+                div.transition()        
+                    .duration(500)      
+                    .style("opacity", 0);   
+            })
+            .on("click", function(d){
+                // färga alla trajectories som 
+            }); 
 
-        var route = svg.append("path")
-            //.datum({type: "LineString", coordinates: [geoTrav.features.origin.coordinates, geoTrav.features.dest.coordinates]})
+        var route = g.selectAll("path")
+            //.append("path")
+            .data(lines)
+            .datum({type: "LineString", coordinates: [lines[0].coordinates, lines[1].coordinates] })
+            .enter().append("path")
+            .style("stroke", "black")
             .attr("class", "route")
             .attr("d", path);
         
