@@ -137,6 +137,16 @@ function map(data1, data2) {
     //Draws the map and the points
     function draw(countries)
     {
+
+
+
+        //if only draw delayed flights
+        if(document.getElementById("checkbox").checked == true){
+            //draw only flights with delay
+        }
+
+
+
         //draw map
         var country = g.selectAll(".country").data(countries);
 
@@ -157,6 +167,7 @@ function map(data1, data2) {
         var point = g.selectAll("path")
             .data(geoData.features)
             .enter().append("path")
+            .style("fill", "orange")
             .attr("d", path)
             .classed("Point", true)
             .on("mouseover", function(d) { 
