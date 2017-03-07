@@ -75,7 +75,6 @@ function menu() {
 
 	function draw(data){
 
-		console.log(data)
 		
 		var x_domain = d3.extent(data, function(d,i) { return d.features[i].day; }),
             y_domain = d3.extent(data, function(d,i) { return 2; });

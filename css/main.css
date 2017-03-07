@@ -113,7 +113,7 @@ body {
     height: auto;/* Negative indent footer by its height */
     margin: 0 auto -60px;/* Pad bottom by footer height */
     padding: 0 0 60px;
-    background-color: rgba(0, 0, 0, 0);
+    background-color: #333333
 }
 
 /* Set the fixed height of the footer here */

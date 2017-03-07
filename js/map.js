@@ -51,15 +51,18 @@ function map(data1, data2) {
     var geoTrav = {type: "TravelCollection", features: geoTravel(data2, data1)};    //har nu alltså ett object med namn och long/lat baserat på om det är origin eller dest
 
     // console.log("geoDATTTA" + geoData);
-    // console.log("geoTRAVELSAKEN" + geoTrav);
+    //console.log(geoTrav);
+
 
     //create lines
     var lines = geoLine(geoTrav);
+    //console.log(lines)
 
     //Loads geo data
     d3.json("data/world-topo.json", function (error, world) {
         var countries = topojson.feature(world, world.objects.countries).features;
-        draw(countries);
+
+        draw(countries,lines);
     });
 
 
@@ -119,23 +122,23 @@ function map(data1, data2) {
     //creates lines 
     function geoLine(data){
         var lines = [];
-
-            for( var i = 0; i < _.size(data); i++){
+            for( var i = 0; i < _.size(data.features); i++){
             
                 lines.push({
                     type: 'LineString',
+                    //airport: data.features[i].origin.name, //testing for drawing only airports with flights
                     coordinates:[ 
                                 [data.features[i].origin.coordinates[0], data.features[i].origin.coordinates[1]], //lat, long
                                 [data.features[i].dest.coordinates[0], data.features[i].dest.coordinates[1]]    //WRONG
                         ]
                 });
             }
-        //console.log(lines)
+        console.log(lines)
         return lines;
     }
 
     //Draws the map and the points
-    function draw(countries)
+    function draw(countries, lines)
     {
 
 
@@ -148,54 +151,84 @@ function map(data1, data2) {
 
 
         //draw map
-        var country = g.selectAll(".country").data(countries);
-
-
-        country.enter().insert("path")
-                .attr("class", "country")
-                .attr("d", path)
-                .style('stroke-width', 1)
-                .style("fill", "lightgray")
-                .style("stroke", "white");
+        var country = g.selectAll(".country")
+            .data(countries)
+            .enter().insert("path")
+            .attr("class", "country")
+            .attr("d", path)
+            .style('stroke-width', 1)
+            .style("fill", "lightgray")
+            .style("stroke", "white");
 
 
                 // console.log(geoData)
                 // console.log(geoTrav)
                 // console.log(geoTrav.features[1])
 
+       
         //draw point with airports 
-        var point = g.selectAll("path")
+        var point = g.selectAll(".point")
             .data(geoData.features)
             .enter().append("path")
             .style("fill", "orange")
             .attr("d", path)
             .classed("Point", true)
             .on("mouseover", function(d) { 
-                //this.
+
+
+                this.dot = d3.select(this).style("fill", "black").transition().duration(500);
+
+
                 div.transition()        
-                    .duration(200)      
+                    .duration(500)      
                     .style("opacity", .9);      
                 div.html("Airport: " + d.properties.airport)  
                     .style("left", (d3.event.pageX) + "px")     
                     .style("top", (d3.event.pageY - 28) + "px");    
             })                  
-            .on("mouseout", function(d) {       
+            .on("mouseout", function(d) {   
+            this.dot = d3.select(this).style("fill", "orange").transition().duration(500);    
                 div.transition()        
                     .duration(500)      
                     .style("opacity", 0);   
             })
             .on("click", function(d){
                 // färga alla trajectories som 
+
             }); 
 
-        var route = g.selectAll("path")
+
+            
+        var route = g.selectAll(".route").data(lines);
             //.append("path")
-            .data(lines)
-            .datum({type: "LineString", coordinates: [lines[0].coordinates, lines[1].coordinates] })
-            .enter().append("path")
-            .style("stroke", "black")
-            .attr("class", "route")
-            .attr("d", path);
+    
+            //console.log(lines)
+        for(var i = 0; i < lines.length; i++){
+            //console.log(lines[i])
+            route.datum({type: "LineString",  coordinates: [lines[i].coordinates[0], lines[i].coordinates[1]] }) // coordinates for origin and destination
+                    .enter().append("path")
+                    .style("stroke-width", 2)
+                    .style("stroke", "black")
+                    .style("fill", "none")
+                    .attr("d", path)
+                    .classed("Route", true)
+                    .on("mouseover", function(d) { 
+                        d3.select(this)
+                        .style("stroke", "red")
+                        .transition()
+                        .duration(500);      
+                    })                  
+                    .on("mouseout", function(d) {   
+                        d3.select(this).style("stroke", "black").transition().duration(500);    
+                           
+                    })
+                    .on("click", function(d){
+                        // färga alla trajectories som 
+                        
+                    }); 
+        }
+            
+
         
     };
 
