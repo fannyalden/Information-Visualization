@@ -101,10 +101,13 @@ function map(data1, data2) {
                         if( geoData[k].iata == d.DEST){
 
                             data.push({
-                                type: 'Route',
+                                type: 'Feature',
 
                                 //if iata = origin
-                                origin: {name: d.ORIGIN, coordinates: [geoData[j].long, geoData[j].lat]},
+                                geometry: {
+                                    type: 'Point',
+                                    name: d.ORIGIN, 
+                                    coordinates: [geoData[j].long, geoData[j].lat]},
                                 //if iata = dest
                                 dest: {name: d.DEST, coordinates: [geoData[k].long, geoData[k].lat]},
                                 properties: d,
@@ -128,7 +131,7 @@ function map(data1, data2) {
                     type: 'LineString',
                     //airport: data.features[i].origin.name, //testing for drawing only airports with flights
                     coordinates:[ 
-                                [data.features[i].origin.coordinates[0], data.features[i].origin.coordinates[1]], //lat, long
+                                [data.features[i].geometry.coordinates[0], data.features[i].geometry.coordinates[1]], //lat, long
                                 [data.features[i].dest.coordinates[0], data.features[i].dest.coordinates[1]]    //WRONG
                         ]
                 });
@@ -168,7 +171,7 @@ function map(data1, data2) {
        
         //draw point with airports 
         var point = g.selectAll(".point")
-            .data(geoData.features)
+            .data(geoTrav.features)
             .enter().append("path")
             .style("fill", "orange")
             .attr("d", path)
@@ -196,6 +199,7 @@ function map(data1, data2) {
                 // färga alla trajectories som 
 
             }); 
+            console.log(geoTrav);
 
 
             
