@@ -45,25 +45,61 @@ function map(data1, data2) {
     //Creates a new geographic path generator and assing the projection        
     var path = d3.geo.path().projection(projection);
 
+
+
+    //creates an array with number of flights
+    var air = createAir(data2);                 //SEND THIS TO menu.js!!!!!!!!!!!
+
     //Formats the data in a feature collection trougth geoFormat()
     var geoData = {type: "FeatureCollection", features: geoFormat(data1)};
     //geoTrav baseras på march_2016 (dvs turer) och innehåller arrayer med namn och coordinater för origin och destination
-    var geoTrav = {type: "TravelCollection", features: geoTravel(data2, data1)};    //har nu alltså ett object med namn och long/lat baserat på om det är origin eller dest
-
-    // console.log("geoDATTTA" + geoData);
-    //console.log(geoTrav);
-
+    var geoTrav = {type: "TravelCollection", features: geoTravel(data2, data1, air)};    //har nu alltså ett object med namn och long/lat baserat på om det är origin eller dest
 
     //create lines
     var lines = geoLine(geoTrav);
-    //console.log(lines)
+
+
+
+   // var percent = calcPercent(geoTrav);
+
 
     //Loads geo data
     d3.json("data/world-topo.json", function (error, world) {
         var countries = topojson.feature(world, world.objects.countries).features;
 
-        draw(countries,lines);
+        draw(countries,lines, air);
     });
+
+
+
+//skapar en array med antal flyg och antal försenade flyg per flygplats
+    function createAir(data){
+
+        var array = [[], [], []];
+        var counter = 0;
+
+
+        for( var i = 1; i < data.length; i++){
+            var totFlights = 1;
+            var late=0;
+
+            while( data[i-1].ORIGIN == data[i].ORIGIN ){
+                array[0][counter] = data[i-1].ORIGIN;
+                array[1][counter] = totFlights++; 
+                array[1][counter] = late;  
+                if(data[i-1].DEP_DELAY >0){array[2][counter] = late++;}
+                i++;
+            }
+            //gör detta om det bara finns ett flyyg
+            array[0][counter] = data[i-1].ORIGIN;
+            array[1][counter] = totFlights;
+            array[2][counter] = late;
+            if(data[i-1].DEP_DELAY >0){array[2][counter] = late+1;}
+        
+            counter++; 
+        }
+        return array;
+    }
 
 
     //Formats the data in a feature collection
@@ -89,37 +125,48 @@ function map(data1, data2) {
     //     filterMag(this.value, data);
     // });
 
-    function geoTravel(array, geoData) {
+function geoTravel(array, geoData, air) {
         var data = [];
-        array.map(function (d, i) {
 
-            for(var j = 0; j< geoData.length; j++){
-                //console.log(d.ORIGIN)
-                if(geoData[j].iata == d.ORIGIN){
+       // array.map(function (d, i) {
+        // console.log(array)
+        //     console.log(air.length)
 
-                    for(var k = 0; k< geoData.length; k++){
-                        if( geoData[k].iata == d.DEST){
+            for(var i = 0; i< air[0].length; i++){
+                //for(var q = 0; q < array.length; q++){
+                for(var j = 0; j < geoData.length; j++){
+                    if(air[0][i] == geoData[j].iata){
+                        
+                        for(var k = 0; k < geoData.length; k++){
+                            if( geoData[k].iata == array[i].DEST){
+                                var percent = calcPercent(air[1][i], air[2][i]);
+                                data.push({
+                                    type: 'Feature',
+                                    //if iata = origin
+                                    geometry: {
+                                        type: 'Point',
+                                        name: geoData[j].airport, 
+                                        coordinates: [geoData[j].long, geoData[j].lat]},
+                                        percent: percent,
+                                    // flightCount: air[1][i],
+                                    // delayCount: air[2][i],
+                                    //if iata = dest
+                                    dest: {name: geoData[k].airport, coordinates: [geoData[k].long, geoData[k].lat]},
+                                    //properties: d,
+                                });
+                                //break;
+                            }
 
-                            data.push({
-                                type: 'Feature',
 
-                                //if iata = origin
-                                geometry: {
-                                    type: 'Point',
-                                    name: d.ORIGIN, 
-                                    coordinates: [geoData[j].long, geoData[j].lat]},
-                                //if iata = dest
-                                dest: {name: d.DEST, coordinates: [geoData[k].long, geoData[k].lat]},
-                                properties: d,
-                            });
                         }
                     }
-                }
+                }//}
             }
-        });
-
+       // });
+       // console.log(data)
         return data;
-    }
+}
+
 
 
     //creates lines 
@@ -136,12 +183,12 @@ function map(data1, data2) {
                         ]
                 });
             }
-        console.log(lines)
+        
         return lines;
     }
 
     //Draws the map and the points
-    function draw(countries, lines)
+    function draw(countries, lines, air)
     {
 
 
@@ -163,11 +210,6 @@ function map(data1, data2) {
             .style("fill", "lightgray")
             .style("stroke", "white");
 
-
-                // console.log(geoData)
-                // console.log(geoTrav)
-                // console.log(geoTrav.features[1])
-
        
         //draw point with airports 
         var point = g.selectAll(".point")
@@ -177,15 +219,11 @@ function map(data1, data2) {
             .attr("d", path)
             .classed("Point", true)
             .on("mouseover", function(d) { 
-
-
                 this.dot = d3.select(this).style("fill", "black").transition().duration(500);
-
-
                 div.transition()        
                     .duration(500)      
                     .style("opacity", .9);      
-                div.html("Airport: " + d.properties.airport)  
+                div.html("Airport: " + d.geometry.name)  
                     .style("left", (d3.event.pageX) + "px")     
                     .style("top", (d3.event.pageY - 28) + "px");    
             })                  
@@ -196,17 +234,16 @@ function map(data1, data2) {
                     .style("opacity", 0);   
             })
             .on("click", function(d){
-                // färga alla trajectories som 
+                //call calcPercent(d);
+              //  var percent = calcPercent(d);
+                menu1.test(geoTrav);//, percent);
 
             }); 
-            console.log(geoTrav);
 
 
             
         var route = g.selectAll(".route").data(lines);
-            //.append("path")
-    
-            //console.log(lines)
+
         for(var i = 0; i < lines.length; i++){
             //console.log(lines[i])
             route.datum({type: "LineString",  coordinates: [lines[i].coordinates[0], lines[i].coordinates[1]] }) // coordinates for origin and destination
@@ -225,18 +262,27 @@ function map(data1, data2) {
                     .on("mouseout", function(d) {   
                         d3.select(this).style("stroke", "black").transition().duration(500);    
                            
-                    })
-                    .on("click", function(d){
-                        // färga alla trajectories som 
-                        
                     }); 
-        }
+            }
             
 
         
     };
 
+    function calcPercent(nrFlights, nrDelay){
 
+
+        if(nrFlights == 0)
+            console.log("nothing")
+        else{
+            if(nrDelay == 0){
+                return 0;
+            }
+            else return nrDelay/nrFlights;
+
+        }
+
+    }
 
     //Zoom and panning method
     function move() {

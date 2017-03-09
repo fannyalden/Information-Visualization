@@ -2,6 +2,8 @@
 
 function menu() {
 	
+
+	
 	
 
 	//Width and height
@@ -19,13 +21,9 @@ function menu() {
 
 		var geoDel = {type: "FeatureCollection", features: geoFormat(data)};
 
-		// console.log("day " + geoDel.features[1].day)
-	 	// console.log("delay " + geoDel.features[1].delay)
-	 	//console.log(geoDel.features)
-		
-		
-		//console.log(day)
-		draw(geoDel);
+
+		//get air from map.js here!!!!!!!!!
+		draw(geoDel);						//spara över till ett object
 
 	});
 
@@ -75,18 +73,19 @@ function menu() {
 
 	function draw(data){
 
+
 		
-		var x_domain = d3.extent(data, function(d,i) { return d.features[i].day; }),
-            y_domain = d3.extent(data, function(d,i) { return 2; });
+		var x_domain = d3.extent(data, function(d,i) { return d.features[i].geometry.name; });
+           // y_domain = d3.extent(data, function(d,i) { return 2; });
 
         //console.log(x_domain)
 
 		var yScale = d3.scale.linear()
-	        .domain(y_domain).nice()   // make axis end in round number
+	        .domain(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])   // make axis end in round number
 			.range([h - barPadding, barPadding]); 
 
-		var xScale = d3.time.scale()
-	        .domain(x_domain)    // values between for month of january
+		var xScale = d3.scale.ordinal()
+	        .domain(data.map(function(d){return d.features.geometry.name}))    // values between for month of january
 		    .range([barPadding, w - barPadding]);   // map these sides of the chart, in this case 100 and 600
 		    
 	
@@ -117,7 +116,7 @@ function menu() {
             .call(xAxis);
 
 
-              svg.selectAll(".xaxis text")  // select all the text elements for the xaxis
+        svg.selectAll(".xaxis text")  // select all the text elements for the xaxis
           .attr("transform", function(d) {
              return "translate(" + this.getBBox().height*-2 + "," + this.getBBox().height + ")rotate(-45)";
          });
@@ -132,7 +131,47 @@ function menu() {
             .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
             .attr("transform", "translate("+ (w/2) +","+(h-(barPadding/3))+")")  // centre below axis
             .text("Day of Week");
+
 	}
+		
+
+
+	this.test = function(geoTrav){
+
 			
+	var x = d3.scale.ordinal().rangeRound([0, w]).barPadding(0.1),
+	    y = d3.scaleLinear().rangeRound([h, 0]);
+
+		//kalla på draw(geoTrav)
+		drawBars(geoTrav);
+
+
+
+
+		// var ja = document.getElementById("barchart");
+
+		// var content = document.createTextNode("Hej här kan man skriva saker");
+		// ja.appendChild(content);
+
+		// console.log("testing")
+	}	
+
+	function drawBars(geoTrav){
+
+		//rita ut bars
+        svg.selectAll(".bar")
+		    .data(geoTrav.features)
+		    .enter().append("rect")
+		    .attr("class", "bar")
+		    .attr("x", function(d) { return x(d.geometry.name); })
+		    .attr("y", function(d) { return y(d.percent); })
+		    .attr("width", x.bandwidth())
+		    .attr("height", function(d) { return h - y(d.percent); });
+
+
+	}
+
+
+
 
 }
