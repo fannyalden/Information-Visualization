@@ -12,3 +12,7 @@
 #barchart{
 	padding-top: 0px;
 }
+
+.bar {
+  fill: steelblue;
+}
