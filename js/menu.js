@@ -7,8 +7,8 @@ function menu() {
 	
 
 	//Width and height
-	var w = 300; //byt till proent
-	var h = 600;
+	var w = 300 ; //byt till proent
+	var h = 500;
 	var barPadding = 30;
 
 	//Create SVG element

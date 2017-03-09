@@ -75,69 +75,77 @@ function map(data1, data2) {
 //skapar en array med antal flyg och antal försenade flyg per flygplats
     function createAir(data){
 
-        var array = [[], [], [], [], [], [], [], [], [], []];
+        var array = [[], [], [], [], [], [], [], [], [], []]; // airpirt, total flights, total delayed flights, delayed flights monday etc.
         var counter = 0;
-        var late=0;
-        var monday = 0;
-        var tuesday = 0;
-        var wednesday = 0;
-        var thursday = 0;
-        var friday = 0;
-        var saturday = 0;
-        var sunday = 0;
-        
-
-        for( var i = 1; i < data.length; i++){
+        var late = 0;
+        //var monday = 0, tuesday = 0, wednesday = 0, thursday = 0, friday = 0, saturday = 0, sunday = 0;
+              
+        for(var i = 1; i < data.length; i++){
             var totFlights = 1;
+            var late = 0;
+            var monday = 0, tuesday = 0, wednesday = 0, thursday = 0, friday = 0, saturday = 0, sunday = 0;
             
-            while( data[i-1].ORIGIN == data[i].ORIGIN ){ //check if same airport
-                array[0][counter] = data[i-1].ORIGIN;
-                array[1][counter] = totFlights++; 
-                //array[1][counter] = late;  
-                
-                if(data[i-1].DEP_DELAY >0){
 
-                    switch(parseInt(data[i-1].DAY_OF_WEEK)){
-                        case 1: {
-                             array[2][counter] = late+1;
-                             array[3][counter] = monday+1;
-                             break; }
-                        case 2: {
-                             array[2][counter] = late+1;
-                             array[4][counter] = tuesday+1;
-                             break; }
-                        case 3: {
-                             array[2][counter] = late+1;
-                             array[5][counter] = wednesday+1;
-                             break; }
-                        case 4: {
-                             array[2][counter] = late+1;
-                             array[6][counter] = thursday+1;
-                             break; }
-                        case 5: {
-                             array[2][counter] = late+1;
-                             array[7][counter] = friday+1;
-                             break; }
-                        case 6: {
-                             array[2][counter] = late+1;
-                             array[8][counter] = saturday+1;
-                             break; }
-                        case 7: {
-                             array[2][counter] = late+1;
-                             array[9][counter] = sunday++;
-                             break; }      
+            if(i != data.length){ //check if at the last item of the array
+                while((data[i-1].ORIGIN == data[i].ORIGIN) && (i != data.length)){ //check if same airport
+                    totFlights++; 
+                                   
+                    if(data[i-1].DEP_DELAY > 0){
+
+                        switch(parseInt(data[i-1].DAY_OF_WEEK)){
+                            case 1: {late++; monday++; break; }
+                            case 2: {late++; tuesday++; break; }
+                            case 3: {late++; wednesday++; break; }
+                            case 4: {late++; thursday++; break; }
+                            case 5: {late++; friday++; break; }
+                            case 6: {late++; saturday++; break; }
+                            case 7: {late++; sunday++; break; }      
+                            }
+                        }
+                    i++; 
+                }
+                //gör detta om det bara finns ett flyyg
+                if( data[i-1].ORIGIN != data[i].ORIGIN){
+                    
+                    if(data[i-1].DEP_DELAY > 0){
+
+                        switch(parseInt(data[i-1].DAY_OF_WEEK)){
+                            case 1: {late++; monday++; break; }
+                            case 2: {late++; tuesday++; break; }
+                            case 3: {late++; wednesday++; break; }
+                            case 4: {late++; thursday++; break; }
+                            case 5: {late++; friday++; break; }
+                            case 6: {late++; saturday++; break; }
+                            case 7: {late++; sunday++; break; }      
                         }
                     }
-                i++;
+                } 
             }
-            //gör detta om det bara finns ett flyyg
+           
+            else{ //check if the item is the last DOESN'T WORK RIGHT NOW :(     
+                if(data[i-1].DEP_DELAY > 0){
+
+                    switch(parseInt(data[i].DAY_OF_WEEK)){
+                        case 1: {late++; monday++; break; }
+                        case 2: {late++; tuesday++; break; }
+                        case 3: {late++; wednesday++; break; }
+                        case 4: {late++; thursday++; break; }
+                        case 5: {late++; friday++; break; }
+                        case 6: {late++; saturday++; break; }
+                        case 7: {late++; sunday++; break; }      
+                    }
+                }
+            }
             array[0][counter] = data[i-1].ORIGIN;
             array[1][counter] = totFlights;
             array[2][counter] = late;
-            if(data[i-1].DEP_DELAY > 0){
-                array[2][counter] = late+1;
-            }
-        
+            array[3][counter] = monday;
+            array[4][counter] = tuesday;
+            array[5][counter] = wednesday;
+            array[6][counter] = thursday;
+            array[7][counter] = friday;
+            array[8][counter] = saturday;
+            array[9][counter] = sunday;
             counter++; 
         }
         console.log(array)
@@ -163,20 +171,11 @@ function map(data1, data2) {
         return data;
     }
 
-    // //Calls the filtering function 
-    // d3.select("#slider").on("input", function () {
-    //     filterMag(this.value, data);
-    // });
-
 function geoTravel(array, geoData, air) {
         var data = [];
 
-       // array.map(function (d, i) {
-        // console.log(array)
-        //     console.log(air.length)
-
             for(var i = 0; i< air[0].length; i++){
-                //for(var q = 0; q < array.length; q++){
+                
                 for(var j = 0; j < geoData.length; j++){
                     if(air[0][i] == geoData[j].iata){
                         
@@ -200,16 +199,11 @@ function geoTravel(array, geoData, air) {
                                     dest: {name: geoData[k].airport, coordinates: [geoData[k].long, geoData[k].lat]},
                                     //properties: d,
                                 });
-                                //break;
                             }
-
-
                         }
                     }
-                }//}
+                }
             }
-       // });
-       // console.log(data)
         return data;
 }
 
@@ -277,11 +271,8 @@ function geoTravel(array, geoData, air) {
                 //call calcPercent(d);
               //  var percent = calcPercent(d);
                 menu1.test(geoTrav);//, percent);
-
             }); 
-
-
-            
+  
         var route = g.selectAll(".route").data(lines);
 
         for(var i = 0; i < lines.length; i++){
@@ -300,14 +291,12 @@ function geoTravel(array, geoData, air) {
                         .duration(500);      
                     })                  
                     .on("mouseout", function(d) {   
-                        d3.select(this).style("stroke", "black").transition().duration(500);    
-                           
+                        d3.select(this).style("stroke", "black").transition().duration(500);           
                     }); 
             }     
     };
 
     function calcPercent(nrFlights, nrDelay){
-
 
         if(nrFlights == 0)
             console.log("nothing")
@@ -339,10 +328,7 @@ function geoTravel(array, geoData, air) {
     function dayOfWeek(data){
         var day;
 
-        //for(var i = 0; i < _.size(data.features); i++){
-            //dayValue = parseInt(data.features[i].day);
             switch(data){
-
                 case 1: day = "Monday"; break;
                 case 2: day = "Tuesday"; break;
                 case 3: day = "Wednesday"; break;
@@ -351,8 +337,6 @@ function geoTravel(array, geoData, air) {
                 case 6: day = "Saturday"; break;
                 case 7: day = "Sunday"; break;
             }
-        //}
-        
         return day;     //returnera en array, alternativt filtrera här inne
     }
 
