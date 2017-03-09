@@ -268,9 +268,7 @@ function geoTravel(array, geoData, air) {
                     .style("opacity", 0);   
             })
             .on("click", function(d){
-                //call calcPercent(d);
-              //  var percent = calcPercent(d);
-                menu1.test(geoTrav);//, percent);
+                menu1.test(d);
             }); 
   
         var route = g.selectAll(".route").data(lines);
