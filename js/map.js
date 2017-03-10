@@ -273,8 +273,10 @@ var q = 0;
     {
 
         //if only draw delayed flights
-        if(document.getElementById("checkbox").checked == true){
+        //if(document.getElementById("checkbox").checked == true)
+        {
             //draw only flights with delay
+
         }
 
         //draw map
