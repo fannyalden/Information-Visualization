@@ -296,17 +296,21 @@ var q = 0;
                         d3.select(this)
                         .style("stroke", "#75F5C6")
                         .transition()
-                        .duration(500); 
-                    info.html("Origin: " + d.airport + "<br>" + " Destination: " + d.dest) 
-                        .transition()
+                        .duration(500);
+
+                    div.transition()        
+                        .duration(500)      
+                        .style("opacity", .9);  
+
+                    div.html("Origin: " + d.airport + "<br>" + " Destination: " + d.dest) 
                         .style("left", (d3.event.pageX) + "px")     
                         .style("top", (d3.event.pageY - 28) + "px");     
                     })                  
                     .on("mouseout", function(d) {   
                         d3.select(this).style("stroke", "#033028").transition().duration(500);  
-                        // info.transition()        
-                        //     .duration(800)      
-                        //     .style("opacity", 0);            
+                        div.transition()        
+                            .duration(800)      
+                            .style("opacity", 0);            
                     }); 
             } 
 
@@ -335,17 +339,11 @@ var q = 0;
                     .style("opacity", 0);   
             })
             .on("click", function(d){
-               // console.log(d)
                 info.transition()        
                     .duration(800)      
                     .style("opacity", 0); 
                 menu1.menu(d);
             }); 
-  
-
-// console.log(lines)
-
-    
     };
 
     function calcPercent(nrFlights, nrDelay){

@@ -12,14 +12,3 @@ d3.csv("data/airports.csv", function (data1) {
 
 	});
 });
-
-
-// d3.csv("data/datan.csv", function (data){
-	
-// 	//data.sort(dynamicSort(data.airport));
-
-
-// 	var sorted = _.sortBy(data, 'airport');
-
-// 	console.log(sorted);
-// })
