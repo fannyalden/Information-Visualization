@@ -19,7 +19,7 @@ function menu(){
 					.attr("width", w)
 					.attr("height", h);
 
-		var g = svg.append("g")
+		var g = svg.append("g")		//mooving the whole g
 			.attr("transform", "translate(" + (barPadding+20) + "," + (barPadding-70) + ")" );
 
 		var div = d3.select("#barchart").append("div")   
@@ -28,7 +28,7 @@ function menu(){
 
 
 		var x = d3.scale.ordinal()
-				.range([0, padd, padd*2, padd*3, padd*4, padd*5, padd*6]);
+				.range([0, padd, padd*2, padd*3, padd*4, padd*5, padd*6]);	//mooving axis and text
 
 		var y = d3.scale.linear()
 				.range([(h-barPadding), barPadding]);
@@ -108,11 +108,10 @@ function menu(){
 
 		function draw(data){
 
-			console.log(geoTrav.weekday)
-			//console.log(data.features[1].origin)
+			// console.log(geoTrav.weekday)
+			// //console.log(data.features[1].origin)
 
 			if(data.features[1].origin == geoTrav.geometry.name){
-				console.log("hej")
 				var bla = geoTrav.geometry.weekday;
 			}
 
@@ -126,7 +125,7 @@ function menu(){
 	        // draw x axis with labels and move to the bottom of the chart area
 	        g.append("g")
 	            .attr("class", "xaxis axis")  // two classes, one for css formatting, one for selection below
-	            .attr("transform", "translate(0," + (h) + ")")
+	            .attr("transform", "translate(0," + (h) + ")")	//mooving axis and text
 	            .call(xAxis);
 
 
@@ -141,27 +140,25 @@ function menu(){
 	            .attr("transform", "translate("+ (barPadding/2) +","+(h/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 	            .text("Minutes of delay");
 
-	        // g.append("text")
-	        //     .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
-	        //     //.attr("transform", "translate("+ (w/2) +","+(h-(barPadding/3))+")")  // centre below axis
-	        //     .text("Day of Week");
 
 			// console.log(data.features[2].day)
 			// console.log(x(data.features[2].day))
 			// console.log(data.features[2].delay)
 			// console.log(y(data.features[2].delay))
+			console.log(x(data.features[1].day))
+			console.log(w)
 
 	        g.selectAll(".bar")
 			    .data(data.features)
 				.enter().append("rect")
 			    .attr("class", "bar")
-			    .style("fill", "green")
+			    .style("fill", "#033028")
 			    .attr("x", function(d) { return x(d.day); })
 			    .attr("y", function(d) { if(d.delay>0){return y(d.delay);} })
 			    .attr("width", 20)
 			    .attr("height", function(d) { return h - y(d.delay); })
 			    .on("mouseover", function(d) { 
-	               this.dot = d3.select(this).style("fill", "black").transition().duration(500);
+	               this.dot = d3.select(this).style("fill", "#480f05").transition().duration(500);
 	                div.transition()        
 	                    .duration(500)      
 	                    .style("opacity", .9);      
@@ -170,7 +167,7 @@ function menu(){
 	                    .style("top", (d3.event.pageY - 28) + "px");    
 	            })                  
 	            .on("mouseout", function(d) {   
-	            this.dot = d3.select(this).style("fill", "green").transition().duration(500);    
+	            this.dot = d3.select(this).style("fill", "#033028").transition().duration(500);    
 	                div.transition()        
 	                    .duration(500)      
 	                    .style("opacity", 0);   

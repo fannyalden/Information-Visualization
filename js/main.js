@@ -6,7 +6,7 @@ d3.csv("data/airports.csv", function (data1) {
 	d3.csv("data/fannysmarchen.csv", function (data2) {
 
 		var sortData2 = _.sortBy(data2, 'ORIGIN');
-		document.getElementById("checkbox").checked = false;	//uncehck chekbox every update
+	//	document.getElementById("checkbox").checked = false;	//uncehck chekbox every update
 
 
 	    map1 = new map(data1, sortData2);

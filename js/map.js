@@ -18,10 +18,6 @@ function map(data1, data2) {
     //     return format.parse(d.time);
     // }));
 
-   // var filterdData = data1;
-
-    //Sets the colormap
-    var colors = colorbrewer.Set3[10];
 
     //Assings the svg canvas to the map div
     var svg = d3.select("#map").append("svg")
@@ -58,8 +54,7 @@ function map(data1, data2) {
     //create lines
     var lines = geoLine(geoTrav);
 
-
-
+    var info = d3.select("#info").append("div");
    // var percent = calcPercent(geoTrav);
 
 
@@ -257,7 +252,8 @@ var q = 0;
             
                 lines.push({
                     type: 'LineString',
-                    //airport: data.features[i].origin.name, //testing for drawing only airports with flights
+                    airport: data.features[i].geometry.name, //testing for drawing only airports with flights
+                    dest: data.features[i].dest.name,
                     coordinates:[ 
                                 [data.features[i].geometry.coordinates[0], data.features[i].geometry.coordinates[1]], //lat, long
                                 [data.features[i].dest.coordinates[0], data.features[i].dest.coordinates[1]]    //WRONG
@@ -272,10 +268,7 @@ var q = 0;
     function draw(countries, lines, air)
     {
 
-        //if only draw delayed flights
-        if(document.getElementById("checkbox").checked == true){
-            //draw only flights with delay
-        }
+
 
         //draw map
         var country = g.selectAll(".country")
@@ -284,39 +277,8 @@ var q = 0;
             .attr("class", "country")
             .attr("d", path)
             .style('stroke-width', 1)
-            .style("fill", "lightgray")
+            .style("fill", "#5e5e5e")
             .style("stroke", "white");
-
-       
-        //draw point with airports 
-        var point = g.selectAll(".point")
-            .data(geoTrav.features)
-            .enter().append("path")
-            .style("fill", "orange")
-            .attr("d", path)
-            .classed("Point", true)
-            .on("mouseover", function(d) { 
-                this.dot = d3.select(this).style("fill", "black").transition().duration(500);
-                div.transition()        
-                    .duration(500)      
-                    .style("opacity", .9);      
-                div.html("Airport: " + d.geometry.name)  
-                    .style("left", (d3.event.pageX) + "px")     
-                    .style("top", (d3.event.pageY - 28) + "px");    
-            })                  
-            .on("mouseout", function(d) {   
-            this.dot = d3.select(this).style("fill", "orange").transition().duration(500);    
-                div.transition()        
-                    .duration(500)      
-                    .style("opacity", 0);   
-            })
-            .on("click", function(d){
-               // console.log(d)
-                menu1.menu(d);
-            }); 
-  
-
-// console.log(lines)
 
 
         var route = g.selectAll(".route").data(lines);
@@ -326,20 +288,64 @@ var q = 0;
             route.datum({type: "LineString",  coordinates: [lines[i].coordinates[0], lines[i].coordinates[1]] }) // coordinates for origin and destination
                     .enter().append("path")
                     .style("stroke-width", 2)
-                    .style("stroke", "black")
+                    .style("stroke", "#033028")
                     .style("fill", "none")
                     .attr("d", path)
                     .classed("Route", true)
                     .on("mouseover", function(d) { 
                         d3.select(this)
-                        .style("stroke", "red")
+                        .style("stroke", "#75F5C6")
                         .transition()
-                        .duration(500);      
+                        .duration(500); 
+                    info.html("Origin: " + d.airport + "<br>" + " Destination: " + d.dest) 
+                        .transition()
+                        .style("left", (d3.event.pageX) + "px")     
+                        .style("top", (d3.event.pageY - 28) + "px");     
                     })                  
                     .on("mouseout", function(d) {   
-                        d3.select(this).style("stroke", "black").transition().duration(500);           
+                        d3.select(this).style("stroke", "#033028").transition().duration(500);  
+                        // info.transition()        
+                        //     .duration(800)      
+                        //     .style("opacity", 0);            
                     }); 
-            }     
+            } 
+
+
+       
+        //draw point with airports 
+        var point = g.selectAll(".point")
+            .data(geoTrav.features)
+            .enter().append("path")
+            .style("fill", "#84AC20")
+            .attr("d", path)
+            .classed("Point", true)
+            .on("mouseover", function(d) { 
+                this.dot = d3.select(this).style("fill", "#033028").transition().duration(500);
+                div.transition()        
+                    .duration(500)      
+                    .style("opacity", .9);      
+                div.html("Airport: " + d.geometry.name)  
+                    .style("left", (d3.event.pageX) + "px")     
+                    .style("top", (d3.event.pageY - 28) + "px");    
+            })                  
+            .on("mouseout", function(d) {   
+            this.dot = d3.select(this).style("fill", "#84AC20").transition().duration(500);    
+                div.transition()        
+                    .duration(500)      
+                    .style("opacity", 0);   
+            })
+            .on("click", function(d){
+               // console.log(d)
+                info.transition()        
+                    .duration(800)      
+                    .style("opacity", 0); 
+                menu1.menu(d);
+            }); 
+  
+
+// console.log(lines)
+
+    
     };
 
     function calcPercent(nrFlights, nrDelay){
