@@ -50,9 +50,6 @@ function menu(){
 		    .tickSize(1);
 			    //.ticks(10);
 
-
-
-
 		d3.csv("data/marchen.csv", function(error, data) {
 
 			var geoDel = {type: "FeatureCollection", features: geoFormat(data)};
@@ -112,9 +109,9 @@ function menu(){
 			// //console.log(data.features[1].origin)
 
 			if(data.features[1].origin == geoTrav.geometry.name){
+
 				var bla = geoTrav.geometry.weekday;
 			}
-
 
 	        // draw y axis with labels and move in from the size by the amount of padding
 	        g.append("g")
@@ -131,7 +128,7 @@ function menu(){
 
 	        g.selectAll(".xaxis text")  // select all the text elements for the xaxis
 	          .attr("transform", function(d) {
-	             return "translate(" + this.getBBox().height*-2 + "," + this.getBBox().height + ")rotate(-45)";
+	             return "translate(" + this.getBBox().height*+0.1 + "," + this.getBBox().height + ")rotate(-45)";
 	        });
 	    
 	        // now add titles to the axes
@@ -162,9 +159,9 @@ function menu(){
 	                div.transition()        
 	                    .duration(500)      
 	                    .style("opacity", .9);      
-	                div.html("Day: " + d.day )  
-	                    .style("left", (d3.event.pageX) + "px")     
-	                    .style("top", (d3.event.pageY - 28) + "px");    
+	                div.html("Day:")  
+	                    .style("left", (d3.event.pageX+100) + "px")     
+	                    .style("top", (d3.event.pageY) + "px");    
 	            })                  
 	            .on("mouseout", function(d) {   
 	            this.dot = d3.select(this).style("fill", "#033028").transition().duration(500);    
