@@ -5,7 +5,7 @@ function menu(){
 
 	this.menu = function(geoTrav) {
 		
-		console.log(geoTrav)
+		
 
 		//Width and height
 		var w = document.getElementById("menu").offsetWidth; //byt till proent
@@ -53,7 +53,7 @@ function menu(){
 		d3.csv("data/marchen.csv", function(error, data) {
 
 			var geoDel = {type: "FeatureCollection", features: geoFormat(data)};
-			draw(geoDel);
+			draw(geoDel, geoTrav);
 
 		});
 
@@ -103,12 +103,11 @@ function menu(){
 		    return data;
 	    }
 
-		function draw(data){
+		function draw(data,data2){
 
 			// console.log(geoTrav.weekday)
 			// //console.log(data.features[1].origin)
 
-			console.log(data)
 			if(data.features[1].origin == geoTrav.geometry.name){
 
 				var bla = geoTrav.geometry.weekday;

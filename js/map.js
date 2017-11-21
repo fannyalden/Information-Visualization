@@ -48,21 +48,19 @@ function map(data1, data2) {
 
 
 
-    //creates an array with number of flights
-    var air = createAir(data2);                 //SEND THIS TO menu.js!!!!!!!!!!!
-
     //Formats the data in a feature collection trougth geoFormat()
     var geoData = {type: "FeatureCollection", features: geoFormat(data1)};
     //geoTrav baseras på march_2016 (dvs turer) och innehåller arrayer med namn och coordinater för origin och destination
     var geoTrav = {type: "TravelCollection", features: geoTravel(data2, data1)};    //har nu alltså ett object med namn och long/lat baserat på om det är origin eller dest
-    console.log(geoTrav)
+
 
     var nrFlightOr = nrFlightsOrigin(data2);//nr of flights origin from aiports
-    console.log(nrFlightOr)
+ 
 
     //airports includes the name, coords and number of flights departuring for all aiports in the data.
-    var airPorts = geoAirports(data2, nrFlightOr);
-
+    // var airPorts = geoAirports(data2, nrFlightOr);
+    var airPorts = geoAirports(data2, nrFlightOr);//{type:"AirportCollection", features: geoAirports(data2, nrFlightOr)};
+ 
     //create lines
     var lines = geoLine(geoTrav);
 
@@ -74,7 +72,7 @@ function map(data1, data2) {
     d3.json("data/world-topo.json", function (error, world) {
         var countries = topojson.feature(world, world.objects.countries).features;
 
-        draw(countries,lines, air, nrFlightOr);
+        draw(countries,lines, airPorts, geoTrav);
     });
 
 
@@ -92,73 +90,60 @@ function map(data1, data2) {
     }
 
 
-    function geoAirports(data, nrFlights){
-        var array = [];
-        var flightCount = d3.nest()         //group unique airports, value is the number of flights departuring from that airport
-            .key(function(d){ return d.ORIGIN })
-            .rollup(function(v){ return v.length})
-            .entries(data);
+function geoAirports(data, nrFlights){
+    var array = [];
 
-        data.forEach(function(d){
-            for(var k = 0; k < flightCount.length; k++){
-                if(flightCount[k].key == d.ORIGIN)
-                {
-                     array.push({
-                        type: "airport",
-                        geometry:{
-                            type:"Point",
-                            name: d.ORIGIN,
-                            coords: [d.long, d.lat]
-                        },
-                        nrflight: flightCount[k].values
-                    })
-                }
+    var flightCount = d3.nest()         //group unique airports, value is the number of flights departuring from that airport
+        .key(function(d){ return d.ORIGIN })
+        .rollup(function(v){ return v.length})
+        .entries(data);
+
+
+    //geoTrav.features.forEach(function(p){
+    data.forEach(function(d){
+        for(var k = 0; k < flightCount.length; k++){
+            if(flightCount[k].key == d.ORIGIN){
+                array.push({
+                    type: "Features",
+                    geometry:{
+                        type:"Point",
+                        name: d.ORIGIN,
+                        coords: [d.LAT, d.LONG]
+                    },
+                    nrflight: flightCount[k].values
+                })
             }
+        }
+    })
+    return array;
+}
 
-        })
-       
-        return array;
-    }
-
-//skapar en array med antal flyg och antal försenade flyg per flygplats
-    function createAir(data){
-        console.log(data)
-    }
-
-
-    //Formats the data in a feature collection
-    function geoFormat(array) {
-        var data = [];
-        array.map(function (d, i) {
-            data.push({
-                type: 'Feature',
-                geometry: { 
-                    type:'Point',
-                    coordinates: [d.long, d.lat]
-                },
-                properties: d,      //behöver vi verkligen ha allt?? extra beräkningstung?
-
-            });
-
+//Formats the data in a feature collection
+function geoFormat(array) {
+    var data = [];
+    array.map(function (d, i) {
+        data.push({
+            type: 'Feature',
+            geometry: { 
+                type:'Point',
+                coordinates: [d.long, d.lat]
+            },
+            //properties: d,      //behöver vi verkligen ha allt?? extra beräkningstung?
         });
-        return data;
-    }
+    });
+    return data;
+}
 
 function geoTravel(array, geoData) {
-        var data = [];
-        var q = 0;
+    var data = [];
+    var q = 0;
 
-        console.log(array)
-        console.log(geoData)
-        array.map(function (d, i) {
-            
+    array.map(function (d, i) {
              for(var j = 0; j< geoData.length; j++){
                  //console.log(d.ORIGIN)
-                 if(geoData[j].iata == d.ORIGIN){
-                    
-                     for(var k = 0; k< geoData.length; k++){
+                if(geoData[j].iata == d.ORIGIN){
+                    for(var k = 0; k< geoData.length; k++){
                          if( geoData[k].iata == d.DEST){
-
                              data.push({
                                  type: 'Feature',
                                  origin: {
@@ -175,48 +160,9 @@ function geoTravel(array, geoData) {
                          }
                      }
                  }
-             }
-
-            
-         });
-
-// array.map(function (d, i) {
-//             for(var i = 0; i< air[0].length; i++){
-                
-//                 for(var j = 0; j < geoData.length; j++){
-//                     if(air[0][i] == geoData[j].iata){
-                        
-//                         for(var k = 0; k < geoData.length; k++){
-//                             if( geoData[k].iata == array[i].DEST){
-
-//                                 var percent = calcPercent(air[1][i], air[2][i]);
-//                                 var day = dayOfWeek(parseInt(array[i].DAY_OF_WEEK));
-
-//                                // console.log(d)
-                                
-//                                 data.push({
-//                                     type: 'Feature',
-//                                     //if iata = origin
-//                                     geometry: {
-//                                         type: 'Point',
-//                                         name: d.ORIGIN,//geoData[j].airport, 
-//                                         coordinates: [geoData[j].long, geoData[j].lat]},
-//                                     percent: percent,
-//                                     weekday: day,
-//                                     flightCount: air[1][i],
-//                                     // delayCount: air[2][i],
-//                                     //if iata = dest
-//                                     dest: {name: d.DEST, coordinates: [geoData[k].long, geoData[k].lat]},
-//                                     //properties: d,
-//                                 });
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//              });
-
-        return data;
+             } 
+    });
+    return data;
 }
 
     //creates lines 
@@ -227,10 +173,10 @@ function geoTravel(array, geoData) {
             
                 lines.push({
                     type: 'LineString',
-                    airportOrigin: data.features[i].geometry.nameOrigin, //testing for drawing only airports with flights
+                    airportOrigin: data.features[i].origin.name, //testing for drawing only airports with flights
                     dest: data.features[i].dest.name,
                     coordinates:[ 
-                                [data.features[i].geometry.coordinates[0], data.features[i].geometry.coordinates[1]], //lat, long
+                                [data.features[i].origin.coordinates[0], data.features[i].origin.coordinates[1]], //lat, long
                                 [data.features[i].dest.coordinates[0], data.features[i].dest.coordinates[1]]    //WRONG
                         ]
                 });
@@ -240,10 +186,8 @@ function geoTravel(array, geoData) {
     }
 
     //Draws the map and the points
-    function draw(countries, lines, air, nrFlight)
+    function draw(countries, lines, airports)
     {
-
-        console.log(lines)
 
         //draw map
         var country = g.selectAll(".country")
@@ -256,72 +200,85 @@ function geoTravel(array, geoData) {
             .style("stroke", "white");
 
 
+    // points
+    aa = [-73.77892556, 40.786453];
+    bb = [-122.389809, 37.72728];
+
+                // add circles to svg
+    g.selectAll("circle")
+        .data([aa,bb]).enter()
+        .append("circle")
+        .attr("cx", function (d) { console.log(projection(d)); return projection(d)[0]; })
+        .attr("cy", function (d) { return projection(d)[1]; })
+        .attr("r", "8px")
+        .attr("fill", "blue")
+
+
+        
+
+        g.selectAll("circle")
+            .data(airports).enter()
+            .append("circle")
+            .attr("cx", function (d,i) { return parseFloat(d.geometry.coords[0]); })//projection wont work
+            .attr("cy",  function (d,i) { return parseFloat(d.geometry.coords[1]); })
+            .attr("r", function (d) { return(d.nrflight);})
+            .attr("fill", "red")
+            .on("mouseover", function(d) { 
+                d3.select(this)
+                    .style("stroke", "#75F5C6")
+                    .transition()
+                    .duration(500);
+                div.transition()        
+                        .duration(500)      
+                        .style("opacity", .9);  
+                div.html("Origin: "  + d.geometry.name+ "<br>" + " Nr of flights origin from here: " + d.nrflight) 
+                        .style("left", (d3.event.pageX) + "px")     
+                        .style("top", (d3.event.pageY - 28) + "px");     
+            })  
+            .on("mouseout", function(d) {   
+                d3.select(this).style("stroke", "#033028").transition().duration(500);  
+                div.transition()        
+                    .duration(800)      
+                    .style("opacity", 0);            
+            }) 
+            .on("click", function(d) {   
+                info.transition()       
+                    .duration(800)      
+                    .style("opacity", 0);   
+                menu1.menu(d);         
+            });
+
+
         var route = g.selectAll(".route").data(lines);
 
         for(var i = 0; i < lines.length; i++){
-            //console.log(lines[i])
+
             route.datum({type: "LineString",  coordinates: [lines[i].coordinates[0], lines[i].coordinates[1]] }) // coordinates for origin and destination
-                    .enter().append("path")
-                    .style("stroke-width", 2)
-                    .style("stroke", "#033028")
-                    .style("fill", "none")
-                    .attr("d", path)
-                    .classed("Route", true)
-                    .on("mouseover", function(d) { 
-                        d3.select(this)
+                .enter().append("path")
+                .style("stroke-width", 2)
+                .style("stroke", "#033028")
+                .style("fill", "none")
+                .attr("d", path)
+                .classed("Route", true)
+                .on("mouseover", function(d) { 
+                    d3.select(this)
                         .style("stroke", "#75F5C6")
                         .transition()
                         .duration(500);
-
                     div.transition()        
                         .duration(500)      
                         .style("opacity", .9);  
-
-                    div.html("Origin: " + d.airport + "<br>" + " Destination: " + d.dest) 
+                    div.html("Origin: " + d.airportOrigin + "<br>" + " Destination: " + d.dest) 
                         .style("left", (d3.event.pageX) + "px")     
                         .style("top", (d3.event.pageY - 28) + "px");     
-                    })                  
-                    .on("mouseout", function(d) {   
-                        d3.select(this).style("stroke", "#033028").transition().duration(500);  
-                        div.transition()        
-                            .duration(800)      
-                            .style("opacity", 0);            
-                    }); 
-            } 
-// want to apply the size of the points in the map to be according to value in nrFlight
-       
-        //draw point with airports 
-        var point = g.selectAll(".point")
-            .data(geoTrav.features)
-            .enter().append("path")
-            .style("fill", "#84AC20")
-            .attr("d", path)
-            .classed("Point", true)
-            .on("mouseover", function(d) { 
-                this.dot = d3.select(this).style("fill", "#033028").transition().duration(500);
-                div.transition()        
-                    .duration(500)      
-                    .style("opacity", .9);      
-                div.html("Airport: " + d.geometry.name)  
-                    .style("left", (d3.event.pageX) + "px")     
-                    .style("top", (d3.event.pageY - 28) + "px");    
-            })                  
-            .on("mouseout", function(d) {   
-            this.dot = d3.select(this).style("fill", "#84AC20").transition().duration(500);    
-                div.transition()        
-                    .duration(500)      
-                    .style("opacity", 0);   
-            })
-            .on("click", function(d){
-                info.transition()        
-                    .duration(800)      
-                    .style("opacity", 0); 
-                menu1.menu(d);
+                })                  
+                .on("mouseout", function(d) {   
+                    d3.select(this).style("stroke", "#033028").transition().duration(500);  
+                    div.transition()        
+                        .duration(800)      
+                        .style("opacity", 0);            
             }); 
-
-
-
-
+        } 
     };
 
     function calcPercent(nrFlights, nrDelay){
@@ -352,7 +309,5 @@ function geoTravel(array, geoData) {
         elem.innerHTML = "Place: " + value["place"] + " / Depth: " + value["depth"] + " / Magnitude: " + value["mag"] + "&nbsp;";
     }
 
-
-
-
 }
+
