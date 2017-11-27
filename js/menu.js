@@ -5,7 +5,7 @@ function menu(){
 
 	this.menu = function(geoTrav) {
 		
-		
+		console.log(geoTrav);
 
 		//Width and height
 		var w = document.getElementById("menu").offsetWidth; //byt till proent
@@ -26,13 +26,11 @@ function menu(){
 	        .attr("class", "tooltip")               
 	        .style("opacity", 0);
 
-
 		var x = d3.scale.ordinal()
 				.range([0, padd, padd*2, padd*3, padd*4, padd*5, padd*6]);	//mooving axis and text
 
 		var y = d3.scale.linear()
 				.range([(h-barPadding), barPadding]);
-
 
 		var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 			x.domain(week);
@@ -81,24 +79,19 @@ function menu(){
 
 		function geoFormat(array) {
 		    var data = [];
-		    var dayen;
+		    var weekday;
 			
-
 		    array.map(function (d, i) {
-		    	dayen = dayOfWeek(parseInt(d.DAY_OF_WEEK));	//array med alla veckodagar som datan i march_2016 har
+		    	weekday = dayOfWeek(parseInt(d.DAY_OF_WEEK));	//array med alla veckodagar som datan i march_2016 har
 
 		        data.push({
 		                type: 'Feature',
-		                day: dayen,		//string with name of day
+		                day: weekday,		//string with name of day
 		                origin: d.ORIGIN,
 		                dest: d.DEST,
 		                delay: d.DEP_DELAY,
-		               
-
 		        });
-
 		    });
-
 			console.log(data)
 		    return data;
 	    }
@@ -137,7 +130,6 @@ function menu(){
 	            .attr("transform", "translate("+ (barPadding/2) +","+(h/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 	            .text("Minutes of delay");
 
-
 	        g.selectAll(".bar")
 			    .data(data.features)
 				.enter().append("rect")
@@ -162,11 +154,7 @@ function menu(){
 	                    .duration(500)      
 	                    .style("opacity", 0);   
 	            });
-
 		}
-
-				
-
 	}
 }
 

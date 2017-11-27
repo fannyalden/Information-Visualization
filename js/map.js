@@ -95,9 +95,38 @@ function geoAirports(data, nrFlights){
 
     var flightCount = d3.nest()         //group unique airports, value is the number of flights departuring from that airport
         .key(function(d){ return d.ORIGIN })
-        .rollup(function(v){ return v.length})
+        .rollup(function(v) { return {
+            flights: v.length,
+            weekday: {
+                monday: {
+                    count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 1) }),
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 1) return d.DEP_DELAY })  },
+                tuesday: {
+                    count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 2) }),
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 2) return d.DEP_DELAY })  },
+                wednesday: {
+                    count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 3) }),
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 3) return d.DEP_DELAY })  },
+                thursday: {
+                    count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 4) }),
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 4) return d.DEP_DELAY })  },
+                friday: {
+                    count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 5) }),
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 5) return d.DEP_DELAY })  },
+                saturday: {
+                    count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 6) }),
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 6) return d.DEP_DELAY })  },
+                sunday: {
+                    count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 7) }),
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 7) return d.DEP_DELAY })  }
+            },
+            totDelay: d3.sum(v, function(d) { return d.DEP_DELAY })
+            }
+        })
         .entries(data);
-
+        console.log(flightCount);
+        console.log(flightCount[0].values.weekday.friday.delay);
+   // console.log(JSON.stringify(flightCount));
 
     //geoTrav.features.forEach(function(p){
     data.forEach(function(d){
@@ -110,7 +139,7 @@ function geoAirports(data, nrFlights){
                         name: d.ORIGIN,
                         coords: [d.LAT, d.LONG]
                     },
-                    nrflight: flightCount[k].values
+                    nrflight: flightCount[k].values.flights
                 })
             }
         }
