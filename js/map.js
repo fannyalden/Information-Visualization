@@ -18,7 +18,6 @@ function map(data1, data2) {
     //     return format.parse(d.time);
     // }));
 
-
     //Assings the svg canvas to the map div
     var svg = d3.select("#map").append("svg")
             .attr("width", width)
@@ -46,13 +45,10 @@ function map(data1, data2) {
     //Creates a new geographic path generator and assing the projection        
     var path = d3.geo.path().projection(projection);
 
-
-
     //Formats the data in a feature collection trougth geoFormat()
     var geoData = {type: "FeatureCollection", features: geoFormat(data1)};
     //geoTrav baseras på march_2016 (dvs turer) och innehåller arrayer med namn och coordinater för origin och destination
     var geoTrav = {type: "TravelCollection", features: geoTravel(data2, data1)};    //har nu alltså ett object med namn och long/lat baserat på om det är origin eller dest
-
 
     var nrFlightOr = nrFlightsOrigin(data2);//nr of flights origin from aiports
  
@@ -65,8 +61,7 @@ function map(data1, data2) {
     var lines = geoLine(geoTrav);
 
     var info = d3.select("#info").append("div");
-   // var percent = calcPercent(geoTrav);
-
+    // var percent = calcPercent(geoTrav);
 
     //Loads geo data
     d3.json("data/world-topo.json", function (error, world) {
@@ -74,8 +69,6 @@ function map(data1, data2) {
 
         draw(countries,lines, airPorts, geoTrav);
     });
-
-
 
     //creates an array with number of flights going from the different origins in order to set size of dots in map according to that.
     function nrFlightsOrigin(data){
@@ -85,10 +78,8 @@ function map(data1, data2) {
             var key = JSON.stringify(obj.ORIGIN)
             nrFlights[key] = (nrFlights[key] || 0) + 1
         })
-
         return nrFlights;
     }
-
 
 function geoAirports(data, nrFlights){
     var array = [];
@@ -124,9 +115,6 @@ function geoAirports(data, nrFlights){
             }
         })
         .entries(data);
-        console.log(flightCount);
-        console.log(flightCount[0].values.weekday.friday.delay);
-   // console.log(JSON.stringify(flightCount));
 
     //geoTrav.features.forEach(function(p){
     data.forEach(function(d){
@@ -139,7 +127,16 @@ function geoAirports(data, nrFlights){
                         name: d.ORIGIN,
                         coords: [d.LAT, d.LONG]
                     },
-                    nrflight: flightCount[k].values.flights
+                    nrflight: flightCount[k].values.flights,
+                    delay: {
+                        monday: flightCount[k].values.weekday.monday,
+                        tuesday: flightCount[k].values.weekday.tuesday,
+                        wednesday: flightCount[k].values.weekday.wednesday,
+                        thursday: flightCount[k].values.weekday.thursday,
+                        friday: flightCount[k].values.weekday.friday,
+                        saturday: flightCount[k].values.weekday.saturday,
+                        sunday: flightCount[k].values.weekday.sunday
+                    }
                 })
             }
         }
@@ -198,7 +195,7 @@ function geoTravel(array, geoData) {
     function geoLine(data){
         var lines = [];
         var hej = [2, 3, 4, 5, 6, 7, 8, 9];//ska egentligen vara data från hur många flighter som går mellan varje flygplats
-        console.log(data)
+        //console.log(data)
             for( var i = 0; i < _.size(data.features); i++){
             
                 lines.push({
@@ -212,7 +209,6 @@ function geoTravel(array, geoData) {
                     nrLines: hej[i]
                 });
             }
-        
         return lines;
     }
     //funktion för att räkna ut hur många connectande flyg varje flygplats har med varandra. 
@@ -226,9 +222,7 @@ function geoTravel(array, geoData) {
     }
     //Draws the map and the points
     function draw(countries, lines, airports)
-    {
-
-        //draw map
+    {   //draw map
         var country = g.selectAll(".country")
             .data(countries)
             .enter().insert("path")
@@ -238,10 +232,7 @@ function geoTravel(array, geoData) {
             .style("fill", "#5e5e5e")
             .style("stroke", "white");
 
-      
-
         var route = g.selectAll(".route").data(lines);
-
 
         for(var i = 0; i < lines.length; i++){
 
@@ -271,7 +262,6 @@ function geoTravel(array, geoData) {
                         .style("opacity", 0);            
             }); 
         }
-
 
           g.selectAll("circle")
             .data(airports).enter()
@@ -313,7 +303,6 @@ function geoTravel(array, geoData) {
                     .style("opacity", 0);   
                 menu1.menu(d);         
             });
- 
     };
 
     function calcPercent(nrFlights, nrDelay){

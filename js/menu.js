@@ -13,7 +13,7 @@ function menu(){
 		var barPadding = 30;
 		var padd = 43;
 
-				//Create SVG element
+		//Create SVG element
 		var svg = d3.select("#barchart")
 					.append("svg")
 					.attr("width", w)
@@ -52,9 +52,7 @@ function menu(){
 
 			var geoDel = {type: "FeatureCollection", features: geoFormat(data)};
 			draw(geoDel, geoTrav);
-
 		});
-
 
 	//when drawing axis of barchart, call this function by dayOfWeek(geoDel.features.day);
 		function dayOfWeek(data){
@@ -102,7 +100,6 @@ function menu(){
 			// //console.log(data.features[1].origin)
 
 			if(data.features[1].origin == geoTrav.geometry.name){
-
 				var bla = geoTrav.geometry.weekday;
 			}
 
