@@ -117,7 +117,7 @@ function geoAirports(data, nrFlights){
         .entries(data);
 
     //geoTrav.features.forEach(function(p){
-    data.forEach(function(d){
+    data.map(function(d){
         for(var k = 0; k < flightCount.length; k++){
             if(flightCount[k].key == d.ORIGIN){
                 array.push({
@@ -190,6 +190,10 @@ function geoTravel(array, geoData) {
     });
     return data;
 }
+
+
+
+/*JOBBA HÄR NÄSTA GÅNG!!!! ANVÄND NRFLIGHTS I AIRPORTS OCH RITA TJOCKLEKEN PÅ LINJERNA GENOM ATT ADDERA FLYGPLATSERNAS NRFLIGHTS*/
 
     //creates lines 
     function geoLine(data){

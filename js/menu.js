@@ -4,8 +4,6 @@
 function menu(){
 
 	this.menu = function(geoTrav) {
-		
-		console.log(geoTrav);
 
 		//Width and height
 		var w = document.getElementById("menu").offsetWidth; //byt till proent
@@ -22,7 +20,7 @@ function menu(){
 		var g = svg.append("g")		//mooving the whole g
 			.attr("transform", "translate(" + (barPadding+20) + "," + (barPadding-70) + ")" );
 
-		var div = d3.select("#barchart").append("div")   
+		var div = d3.select("body").append("div")   
 	        .attr("class", "tooltip")               
 	        .style("opacity", 0);
 
@@ -127,23 +125,26 @@ function menu(){
 	            .attr("transform", "translate("+ (barPadding/2) +","+(h/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 	            .text("Minutes of delay");
 
+	            console.log(data2.delay)
+	           // var datan = [40, 8, 15, 16, 23, 42];
+	            var datan = data2.delay.tuesday.delay;
 	        g.selectAll(".bar")
-			    .data(data.features)
+			    .data(datan)
 				.enter().append("rect")
 			    .attr("class", "bar")
 			    .style("fill", "#033028")
-			    .attr("x", function(d) { return x(d.day); })
-			    .attr("y", function(d) { if(d.delay>0){return y(d.delay);} })
-			    .attr("width", 20)
-			    .attr("height", function(d) { return h - y(d.delay); })
+			    .attr("x", function(d) { return x(d); })
+			    .attr("y", function(d) { if(d.delay>0){return y(d);} })
+			    .attr("width", 10)
+			    .attr("height", function(d) { console.log(d); return h - y(d); })
 			    .on("mouseover", function(d) { 
-	               this.dot = d3.select(this).style("fill", "#480f05").transition().duration(500);
+	                this.dot = d3.select(this).style("fill", "#480f05").transition().duration(500);
 	                div.transition()        
 	                    .duration(500)      
 	                    .style("opacity", .9);      
-	                div.html("Day:")  
-	                    .style("left", (d3.event.pageX+100) + "px")     
-	                    .style("top", (d3.event.pageY) + "px");    
+	                div.html("Delay:" + d + "<br>" + "Origin: " + d.origin)  
+	                    .style("left", (d3.event.pageX) + "px")     
+                        .style("top", (d3.event.pageY) + "px");    
 	            })                  
 	            .on("mouseout", function(d) {   
 	            this.dot = d3.select(this).style("fill", "#033028").transition().duration(500);    
