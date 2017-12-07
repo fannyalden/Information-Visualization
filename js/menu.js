@@ -10,7 +10,7 @@ function menu(){
 		var h = document.getElementById("menu").offsetHeight-100;
 		var barPadding = 30;
 		var padd = 43;
-		var maxDelay = 20;
+		var maxDelay = 150;
 
 		//Create SVG element
 		var svg = d3.select("#barchart")
@@ -39,6 +39,7 @@ function menu(){
 		svg.selectAll(".bar").remove();
 		svg.selectAll(".axis").remove();
 		svg.selectAll(".axis text").remove();
+		svg.selectAll("#info").remove();
 
 
 		var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -150,8 +151,15 @@ function menu(){
 	            // 	maxDelay = Math.max(data2.delay.weekday[i]);
 
 	            // }
-	 	
-	 		information();
+	 		console.log(data2)
+	 		//information(data);
+
+	 		// d3.select("#info")
+		  //       .append('div')
+		  //       .text("Total amount of delayed flights from airport. "//, function(d){
+		  //       // 	return ("hej:" + d.weekday);
+		  //       // }
+		  //       );
 
 		        g.selectAll(".bar")
 				    .data(data2.delay.weekday)
@@ -194,12 +202,16 @@ function menu(){
 	        .attr("transform", "translate("+ (barPadding*4) +","+(h/2)+")")  // text is drawn off the screen top left, move down and out and rotate
 	        .text("No delayed flights!");
 	}
-	function information(){
-		d3.select("body").append("div")
-			.attr("class", "div")
-			div.html("Delay:"  + "<br>" + "Origin: " )  
-		                    ;
-	}
-
+	// function information(data){
+	// 	// d3.select("body").append("div")
+	// 	// 	.attr("class", "div")
+	// 	// 	div.html("Delay:"  + "<br>" + "Origin: " );
+	// 	d3.select("#info")
+	//         .append('div')
+	//         .text("hej"//, function(d){
+	//         // 	return ("hej:" + d.weekday);
+	//         // }
+	//         );
+	//     }
 }
 
