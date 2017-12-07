@@ -10,7 +10,11 @@ function menu(){
 		var h = document.getElementById("menu").offsetHeight-100;
 		var barPadding = 30;
 		var padd = 43;
+<<<<<<< HEAD
 		var maxDelay = 0;
+=======
+		var maxDelay = 150;
+>>>>>>> 50040f6d60d88b6b56b711e2593f5d16c4aeb7e7
 
 		//Create SVG element
 		var svg = d3.select("#barchart")
@@ -39,6 +43,7 @@ function menu(){
 		svg.selectAll(".bar").remove();
 		svg.selectAll(".axis").remove();
 		svg.selectAll(".axis text").remove();
+		svg.selectAll("#info").remove();
 
 		var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]; 	
 		x.domain(week); 
@@ -143,9 +148,33 @@ function menu(){
 	            .attr("transform", "translate("+ (barPadding/2) +","+(h/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 	            .text("Minutes of delay");
 
+<<<<<<< HEAD
 	           	//var datan = Math.max(400, 80, 150, 160, 230, 420);
 	            
 	 		information();
+=======
+
+
+			//svg.selectAll("*").remove();
+	            console.log(data2.delay)
+	           	var datan = [400, 80, 150, 160, 230, 420];
+	           	//console.log(parseInt(data2.delay.weekday));
+	            //var datan = parseInt(data2.delay.tuesday.delay);
+
+	            // for( i var i = 0; i < 10; i++){
+	            // 	maxDelay = Math.max(data2.delay.weekday[i]);
+
+	            // }
+	 		console.log(data2)
+	 		//information(data);
+
+	 		// d3.select("#info")
+		  //       .append('div')
+		  //       .text("Total amount of delayed flights from airport. "//, function(d){
+		  //       // 	return ("hej:" + d.weekday);
+		  //       // }
+		  //       );
+>>>>>>> 50040f6d60d88b6b56b711e2593f5d16c4aeb7e7
 
 		        g.selectAll(".bar")
 				    .data(data2.delay.weekday)
@@ -188,13 +217,12 @@ function menu(){
 	        .attr("transform", "translate("+ (barPadding*4) +","+(h/2)+")")  // text is drawn off the screen top left, move down and out and rotate
 	        .text("No delayed flights!");
 	}
+	
 	function information(){
 		d3.select("body").append("div")
 			.attr("class", "div")
 			div.html("Delay:"  + "<br>" + "Origin: " )  
 		                    ;
 	}
-
-
 }
 
