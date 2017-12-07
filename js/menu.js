@@ -149,18 +149,12 @@ function menu(){
 
 	            // for( i var i = 0; i < 10; i++){
 	            // 	maxDelay = Math.max(data2.delay.weekday[i]);
-
-	            // }
-	 		console.log(data2)
-	 		//information(data);
-
-	 		// d3.select("#info")
-		  //       .append('div')
-		  //       .text("Total amount of delayed flights from airport. "//, function(d){
-		  //       // 	return ("hej:" + d.weekday);
-		  //       // }
-		  //       );
-
+	            console.log(d3.sum(data2.delay.weekday));
+	            if(d3.sum(data2.delay.weekday) == 0){
+	            	message();
+	            }
+	            else{
+	            	
 		        g.selectAll(".bar")
 				    .data(data2.delay.weekday)
 					.enter().append("rect")
@@ -170,12 +164,7 @@ function menu(){
 				    .attr("y", function(d) { return y(d); })
 				    .attr("width", 10)
 				    .attr("height", function(d) {  
-				    	console.log(d3.sum(data2.delay.weekday));
-				    	if( d3.sum(data2.delay.weekday) == 0){
-				         	message();
-
-				        } 
-				        else return h - y(d); })
+				    return h - y(d); })
 				    .on("mouseover", function(d) { 
 		                this.dot = d3.select(this).style("fill", "#480f05").transition().duration(500);
 		                div.transition()        
@@ -191,27 +180,17 @@ function menu(){
 		                    .duration(500)      
 		                    .style("opacity", 0);   
 		            });
-	        
+	        }
 		}
 	}
 
 	function message(){
 
-		d3.select("body").append("message")
+		d3.select("#info").append("message")
 	        .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
 	        .attr("transform", "translate("+ (barPadding*4) +","+(h/2)+")")  // text is drawn off the screen top left, move down and out and rotate
 	        .text("No delayed flights!");
 	}
-	// function information(data){
-	// 	// d3.select("body").append("div")
-	// 	// 	.attr("class", "div")
-	// 	// 	div.html("Delay:"  + "<br>" + "Origin: " );
-	// 	d3.select("#info")
-	//         .append('div')
-	//         .text("hej"//, function(d){
-	//         // 	return ("hej:" + d.weekday);
-	//         // }
-	//         );
-	//     }
+
 }
 
