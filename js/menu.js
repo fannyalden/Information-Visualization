@@ -2,20 +2,22 @@
 
 //this is the menu containing the bar chart and some sliders, checkboxes
 function menu(){
+		
 
-	this.menu = function(geoTrav) {
 
 		//Width and height
 		var w = document.getElementById("menu").offsetWidth; //byt till proent
 		var h = document.getElementById("menu").offsetHeight-100;
 		var barPadding = 30;
 		var padd = 43;
+		var maxDelay = 20;
 
 		//Create SVG element
 		var svg = d3.select("#barchart")
 					.append("svg")
 					.attr("width", w)
 					.attr("height", h);
+
 
 		var g = svg.append("g")		//mooving the whole g
 			.attr("transform", "translate(" + (barPadding+20) + "," + (barPadding-70) + ")" );
@@ -30,9 +32,18 @@ function menu(){
 		var y = d3.scale.linear()
 				.range([(h-barPadding), barPadding]);
 
+
+
+
+	this.menu = function(geoTrav) {
+		svg.selectAll(".bar").remove();
+		svg.selectAll(".axis").remove();
+		svg.selectAll(".axis text").remove();
+
+
 		var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 			x.domain(week);
-		  	y.domain([0,300]);
+		  	y.domain([0,maxDelay]);
 
 		var xAxis = d3.svg.axis()
 		    .scale(x)
@@ -45,6 +56,8 @@ function menu(){
 		    .orient("left")
 		    .tickSize(1);
 			    //.ticks(10);
+		
+
 
 		d3.csv("data/marchen.csv", function(error, data) {
 
@@ -88,14 +101,13 @@ function menu(){
 		                delay: d.DEP_DELAY,
 		        });
 		    });
-			console.log(data)
+		
 		    return data;
 	    }
 
 		function draw(data,data2){
 
-			// console.log(geoTrav.weekday)
-			// //console.log(data.features[1].origin)
+
 
 			if(data.features[1].origin == geoTrav.geometry.name){
 				var bla = geoTrav.geometry.weekday;
@@ -119,40 +131,75 @@ function menu(){
 	             return "translate(" + this.getBBox().height*+0.1 + "," + this.getBBox().height + ")rotate(-45)";
 	        });
 	    
+
 	        // now add titles to the axes
 	        g.append("text")
 	            .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
 	            .attr("transform", "translate("+ (barPadding/2) +","+(h/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 	            .text("Minutes of delay");
 
+
+
+			//svg.selectAll("*").remove();
 	            console.log(data2.delay)
-	           // var datan = [40, 8, 15, 16, 23, 42];
-	            var datan = data2.delay.tuesday.delay;
-	        g.selectAll(".bar")
-			    .data(datan)
-				.enter().append("rect")
-			    .attr("class", "bar")
-			    .style("fill", "#033028")
-			    .attr("x", function(d) { return x(d); })
-			    .attr("y", function(d) { if(d.delay>0){return y(d);} })
-			    .attr("width", 10)
-			    .attr("height", function(d) { console.log(d); return h - y(d); })
-			    .on("mouseover", function(d) { 
-	                this.dot = d3.select(this).style("fill", "#480f05").transition().duration(500);
-	                div.transition()        
-	                    .duration(500)      
-	                    .style("opacity", .9);      
-	                div.html("Delay:" + d + "<br>" + "Origin: " + d.origin)  
-	                    .style("left", (d3.event.pageX) + "px")     
-                        .style("top", (d3.event.pageY) + "px");    
-	            })                  
-	            .on("mouseout", function(d) {   
-	            this.dot = d3.select(this).style("fill", "#033028").transition().duration(500);    
-	                div.transition()        
-	                    .duration(500)      
-	                    .style("opacity", 0);   
-	            });
+	           	var datan = [400, 80, 150, 160, 230, 420];
+	           	//console.log(parseInt(data2.delay.weekday));
+	            //var datan = parseInt(data2.delay.tuesday.delay);
+
+	            // for( i var i = 0; i < 10; i++){
+	            // 	maxDelay = Math.max(data2.delay.weekday[i]);
+
+	            // }
+	 	
+	 		information();
+
+		        g.selectAll(".bar")
+				    .data(data2.delay.weekday)
+					.enter().append("rect")
+				    .attr("class", "bar")
+				    .style("fill", "#033028")
+				    .attr("x", function(d) { return x(d); })
+				    .attr("y", function(d) { return y(d); })
+				    .attr("width", 10)
+				    .attr("height", function(d) {  
+				    	console.log(d3.sum(data2.delay.weekday));
+				    	if( d3.sum(data2.delay.weekday) == 0){
+				         	message();
+
+				        } 
+				        else return h - y(d); })
+				    .on("mouseover", function(d) { 
+		                this.dot = d3.select(this).style("fill", "#480f05").transition().duration(500);
+		                div.transition()        
+		                    .duration(500)      
+		                    .style("opacity", .9);      
+		                div.html("Delay:" + d + "<br>" + "Origin: " + d.origin)  
+		                    .style("left", (d3.event.pageX) + "px")     
+	                        .style("top", (d3.event.pageY) + "px");    
+		            })                  
+		            .on("mouseout", function(d) {   
+		            this.dot = d3.select(this).style("fill", "#033028").transition().duration(500);    
+		                div.transition()        
+		                    .duration(500)      
+		                    .style("opacity", 0);   
+		            });
+	        
 		}
 	}
+
+	function message(){
+
+		d3.select("body").append("message")
+	        .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+	        .attr("transform", "translate("+ (barPadding*4) +","+(h/2)+")")  // text is drawn off the screen top left, move down and out and rotate
+	        .text("No delayed flights!");
+	}
+	function information(){
+		d3.select("body").append("div")
+			.attr("class", "div")
+			div.html("Delay:"  + "<br>" + "Origin: " )  
+		                    ;
+	}
+
 }
 
