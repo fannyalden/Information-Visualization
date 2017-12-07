@@ -10,7 +10,7 @@ function menu(){
 		var h = document.getElementById("menu").offsetHeight-100;
 		var barPadding = 30;
 		var padd = 43;
-		var maxDelay = 20;
+		var maxDelay = 0;
 
 		//Create SVG element
 		var svg = d3.select("#barchart")
@@ -40,10 +40,9 @@ function menu(){
 		svg.selectAll(".axis").remove();
 		svg.selectAll(".axis text").remove();
 
-
-		var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-			x.domain(week);
-		  	y.domain([0,maxDelay]);
+		var week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]; 	
+		x.domain(week); 
+	    y.domain([0, maxDelay]); 
 
 		var xAxis = d3.svg.axis()
 		    .scale(x)
@@ -56,8 +55,6 @@ function menu(){
 		    .orient("left")
 		    .tickSize(1);
 			    //.ticks(10);
-		
-
 
 		d3.csv("data/marchen.csv", function(error, data) {
 
@@ -106,8 +103,16 @@ function menu(){
 	    }
 
 		function draw(data,data2){
-
-
+			 maxDelay = Math.max(
+	            	parseInt(data2.delay.weekday[0]),
+	            	parseInt(data2.delay.weekday[1]),
+	            	parseInt(data2.delay.weekday[2]),
+	            	parseInt(data2.delay.weekday[3]),
+	            	parseInt(data2.delay.weekday[4]),
+	            	parseInt(data2.delay.weekday[5]),
+	            	parseInt(data2.delay.weekday[6])); 
+			 
+	        y.domain([0, maxDelay]);  
 
 			if(data.features[1].origin == geoTrav.geometry.name){
 				var bla = geoTrav.geometry.weekday;
@@ -138,19 +143,8 @@ function menu(){
 	            .attr("transform", "translate("+ (barPadding/2) +","+(h/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 	            .text("Minutes of delay");
 
-
-
-			//svg.selectAll("*").remove();
-	            console.log(data2.delay)
-	           	var datan = [400, 80, 150, 160, 230, 420];
-	           	//console.log(parseInt(data2.delay.weekday));
-	            //var datan = parseInt(data2.delay.tuesday.delay);
-
-	            // for( i var i = 0; i < 10; i++){
-	            // 	maxDelay = Math.max(data2.delay.weekday[i]);
-
-	            // }
-	 	
+	           	//var datan = Math.max(400, 80, 150, 160, 230, 420);
+	            
 	 		information();
 
 		        g.selectAll(".bar")
@@ -162,7 +156,7 @@ function menu(){
 				    .attr("y", function(d) { return y(d); })
 				    .attr("width", 10)
 				    .attr("height", function(d) {  
-				    	console.log(d3.sum(data2.delay.weekday));
+				    	//console.log(d3.sum(data2.delay.weekday));
 				    	if( d3.sum(data2.delay.weekday) == 0){
 				         	message();
 
@@ -200,6 +194,7 @@ function menu(){
 			div.html("Delay:"  + "<br>" + "Origin: " )  
 		                    ;
 	}
+
 
 }
 

@@ -91,31 +91,31 @@ function geoAirports(data, nrFlights){
             weekday: {
                 monday: {
                     count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 1) }),
-                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 1 && d.DEP_DELAY>0) return d.DEP_DELAY })  },
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 1 && d.DEP_DELAY>0) return d.DEP_DELAY;  else return 0;}) },
                 tuesday: {
                     count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 2) }),
-                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 2 && d.DEP_DELAY>0) return d.DEP_DELAY })  },
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 2 && d.DEP_DELAY>0) return d.DEP_DELAY;  else return 0;}) },
                 wednesday: {
                     count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 3) }),
-                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 3 && d.DEP_DELAY>0) return d.DEP_DELAY })  },
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 3 && d.DEP_DELAY>0) return d.DEP_DELAY;  else return 0;}) },
                 thursday: {
                     count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 4) }),
-                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 4 && d.DEP_DELAY>0) return d.DEP_DELAY })  },
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 4 && d.DEP_DELAY>0) return d.DEP_DELAY;  else return 0;}) },
                 friday: {
                     count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 5) }),
-                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 5 && d.DEP_DELAY>0) return d.DEP_DELAY })  },
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 5 && d.DEP_DELAY>0) return d.DEP_DELAY;  else return 0;}) },
                 saturday: {
                     count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 6) }),
-                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 6 && d.DEP_DELAY>0) return d.DEP_DELAY })  },
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 6 && d.DEP_DELAY>0) return d.DEP_DELAY;  else return 0;}) },
                 sunday: {
                     count: d3.sum(v, function(d) { return (d.DAY_OF_WEEK == 7) }),
-                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 7 && d.DEP_DELAY>0) return d.DEP_DELAY })  }
+                    delay: d3.sum(v, function(d) { if(d.DAY_OF_WEEK == 7 && d.DEP_DELAY>0) return d.DEP_DELAY;  else return 0;}) }
             },
             totDelay: d3.sum(v, function(d) { return d.DEP_DELAY })
             }
         })
         .entries(data);
-        console.log(flightCount)
+        //console.log(flightCount)
 
 
     //geoTrav.features.forEach(function(p){
