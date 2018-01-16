@@ -32,8 +32,8 @@ function map(data1, data2) {
     var g = svg.append("g");
 
     // Define the div for the tooltip
-    var div = d3.select("#map").append("div")   
-        .attr("class", "tooltip")               
+    var div = d3.select("#map").append("div")
+        .attr("class", "tooltip")
         .style("opacity", 0);
 
     //Sets the map projection
@@ -42,7 +42,7 @@ function map(data1, data2) {
             .scale(900)
             .translate([1.5*width, 1.5*height]);
 
-    //Creates a new geographic path generator and assing the projection        
+    //Creates a new geographic path generator and assing the projection
     var path = d3.geo.path().projection(projection);
 
     //Formats the data in a feature collection trougth geoFormat()
@@ -51,12 +51,12 @@ function map(data1, data2) {
     var geoTrav = {type: "TravelCollection", features: geoTravel(data2, data1)};    //har nu alltså ett object med namn och long/lat baserat på om det är origin eller dest
 
     var nrFlightOr = nrFlightsOrigin(data2);//nr of flights origin from aiports
- 
+
 
     //airports includes the name, coords and number of flights departuring for all aiports in the data.
     // var airPorts = geoAirports(data2, nrFlightOr);
     var airPorts = geoAirports(data2, nrFlightOr);//{type:"AirportCollection", features: geoAirports(data2, nrFlightOr)};
- 
+
     //create lines
     var lines = geoLine(geoTrav);
 
@@ -127,6 +127,7 @@ function geoAirports(data, nrFlights){
                     geometry:{
                         type:"Point",
                         name: d.ORIGIN,
+                        dest: d.DEST,
                         coords: [d.LAT, d.LONG]
                     },
                     nrflight: flightCount[k].values.flights,
@@ -161,7 +162,7 @@ function geoFormat(array) {
     array.map(function (d, i) {
         data.push({
             type: 'Feature',
-            geometry: { 
+            geometry: {
                 type:'Point',
                 coordinates: [d.long, d.lat]
             },
@@ -185,7 +186,7 @@ function geoTravel(array, geoData) {
                                  type: 'Feature',
                                  origin: {
                                      type: 'Point',
-                                     name: d.ORIGIN, 
+                                     name: d.ORIGIN,
                                      coordinates: [geoData[j].long, geoData[j].lat]},
                                      //perc: percent,
                                 day: parseInt(array[i].DAY_OF_WEEK),
@@ -197,7 +198,7 @@ function geoTravel(array, geoData) {
                          }
                      }
                  }
-             } 
+             }
     });
     return data;
 }
@@ -206,18 +207,18 @@ function geoTravel(array, geoData) {
 
 /*JOBBA HÄR NÄSTA GÅNG!!!! ANVÄND NRFLIGHTS I AIRPORTS OCH RITA TJOCKLEKEN PÅ LINJERNA GENOM ATT ADDERA FLYGPLATSERNAS NRFLIGHTS*/
 
-    //creates lines 
+    //creates lines
     function geoLine(data){
         var lines = [];
         var hej = [2, 3, 4, 5, 6, 7, 8, 9];//ska egentligen vara data från hur många flighter som går mellan varje flygplats
         //console.log(data)
             for( var i = 0; i < _.size(data.features); i++){
-            
+
                 lines.push({
                     type: 'LineString',
                     airportOrigin: data.features[i].origin.name, //testing for drawing only airports with flights
                     dest: data.features[i].dest.name,
-                    coordinates:[ 
+                    coordinates:[
                                 [data.features[i].origin.coordinates[0], data.features[i].origin.coordinates[1]], //lat, long
                                 [data.features[i].dest.coordinates[0], data.features[i].dest.coordinates[1]]    //WRONG
                         ],
@@ -226,7 +227,7 @@ function geoTravel(array, geoData) {
             }
         return lines;
     }
-    //funktion för att räkna ut hur många connectande flyg varje flygplats har med varandra. 
+    //funktion för att räkna ut hur många connectande flyg varje flygplats har med varandra.
     //behöver få strukturen på datan att se ut som följande: A=[origin,dest], B=[origin,dest]
     function connected(origin1, origin2, dest1, dest2){
         var count = 0;
@@ -258,66 +259,67 @@ function geoTravel(array, geoData) {
                 .style("fill", "none")
                 .attr("d", path)
                 .classed("Route", true)
-                .on("mouseover", function(d) { 
+                .on("mouseover", function(d) {
                     d3.select(this)
                         .style("stroke", "#75F5C6")
                         .transition()
                         .duration(500);
-                    div.transition()        
-                        .duration(500)      
-                        .style("opacity", .9);  
-                    div.html("Origin: " + d.airportOrigin + "<br>" + " Destination: " + d.dest) 
-                        .style("left", (d3.event.pageX) + "px")     
-                        .style("top", (d3.event.pageY - 28) + "px");     
-                })                  
-                .on("mouseout", function(d) {   
-                    d3.select(this).style("stroke", "#033028").transition().duration(500);  
-                    div.transition()        
-                        .duration(800)      
-                        .style("opacity", 0);            
-            }); 
+                    div.transition()
+                        .duration(500)
+                        .style("opacity", .9);
+                    div.html("Origin: " + d.airportOrigin + "<br>" + " Destination: " + d.dest)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    d3.select(this).style("stroke", "#033028").transition().duration(500);
+                    div.transition()
+                        .duration(800)
+                        .style("opacity", 0);
+            });
         }
 
-          g.selectAll("circle")
-            .data(airports).enter()
-            .append("circle")
-            .attr("cx", function (d,i) { 
-                var jaaa = [d.geometry.coords[0], d.geometry.coords[1]]
-                return parseFloat(projection(jaaa)[0]); 
-            })
-            .attr("cy",  function (d,i) { 
-                var jaaa = [d.geometry.coords[0], d.geometry.coords[1]]
-                return parseFloat(projection(jaaa)[1]); 
-            })
-            .attr("r", function (d) { return(1.5*(d.nrflight+5)/2);})
-            .attr("fill", "orange")
-            .on("mouseover", function(d) { 
-                d3.select(this)
-                    .style("stroke", "#75F5C6")
-                    .transition()
-                    .duration(500);
-                div.transition()        
-                        .duration(500)      
-                        .style("opacity", .9);  
-                div.html("Origin: "  + d.geometry.name+ "<br>" + " Nr of flights origin from here: "+ d.nrflight) 
-                        .style("left", (d3.event.pageX) + "px")     
-                        .style("top", (d3.event.pageY - 28) + "px");     
-            })  
-            .on("mouseout", function(d) {   
-                d3.select(this)
-                    .style("stroke", "orange")
-                    .transition()
-                    .duration(500);  
-                div.transition()        
-                    .duration(800)      
-                    .style("opacity", 0);            
-            }) 
-            .on("click", function(d) {  
-                info.transition()       
-                    .duration(800)      
-                    .style("opacity", 0);   
-                menu1.menu(d);         
-            });
+        g.selectAll("circle")
+          .data(airports).enter()
+          .append("circle")
+          .attr("cx", function (d,i) {
+              var jaaa = [d.geometry.coords[0], d.geometry.coords[1]]
+              return parseFloat(projection(jaaa)[0]);
+          })
+          .attr("cy",  function (d,i) {
+              var jaaa = [d.geometry.coords[0], d.geometry.coords[1]]
+              return parseFloat(projection(jaaa)[1]);
+          })
+          .attr("r", function (d) { return(1.5*(d.nrflight+5)/2);})
+          .attr("fill", "orange")
+          .on("mouseover", function(d) {
+              d3.select(this)
+                  .style("stroke", "#75F5C6")
+                  .transition()
+                  .duration(500);
+              div.transition()
+                      .duration(500)
+                      .style("opacity", .9);
+              div.html("Origin: "  + d.geometry.name+ "<br>" + " Nr of flights origin from here: "+ d.nrflight)
+                      .style("left", (d3.event.pageX) + "px")
+                      .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+              d3.select(this)
+                  .style("stroke", "orange")
+                  .transition()
+                  .duration(500);
+              div.transition()
+                  .duration(800)
+                  .style("opacity", 0);
+          })
+          .on("click", function(d) {
+              console.log(d);
+              info.transition()
+                  .duration(800)
+                  .style("opacity", 0);
+              menu1.menu(d);
+          });
     };
 
     function calcPercent(nrFlights, nrDelay){
@@ -349,4 +351,3 @@ function geoTravel(array, geoData) {
     }
 
 }
-
